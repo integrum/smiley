@@ -1,11 +1,22 @@
 (function() {
+  var __slice = Array.prototype.slice;
   $(function() {
     var smiley, smileyer;
     smileyer = function(options) {
-      var cachedImages, calcDegree, el, height, image, images, index, moving, onchange, self, width, _len;
+      var cachedImages, calcDegree, el, emit, height, image, images, index, moving, onchange, self, width, _len;
       images = options.images, width = options.width, height = options.height, onchange = options.onchange;
-      onchange || (onchange = function() {});
       self = {};
+      self.on = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return events.on.apply(events, [self].concat(__slice.call(args)));
+      };
+      self.emit = function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return events.emit.apply(events, [self].concat(__slice.call(args)));
+      };
+      emit = self.emit;
       cachedImages = "";
       for (index = 0, _len = images.length; index < _len; index++) {
         image = images[index];
@@ -41,7 +52,7 @@
         }
         imageIndex = parseInt(images.length * degree / 360);
         el.find("img").attr("src", images[imageIndex + 0]);
-        return onchange(false, imageIndex);
+        return emit("change", imageIndex);
       };
       el.bind("mousedown", function(e) {
         e.preventDefault();
@@ -62,8 +73,8 @@
       height: 192
     });
     $(document.body).append(smiley.el);
-    return smiley.onchange(function(err, value) {
-      return $("#value").val(value);
+    return smiley.on("change", function(value) {
+      return $("#value").text(value);
     });
   });
 }).call(this);

@@ -1,8 +1,14 @@
+#TODO: talk about using a real event library 
 $ ->
   smileyer = (options) ->
     {images, width, height, onchange} = options
-    onchange ||= ->
     self = {}
+    self.on = (args...) ->
+      events.on self, args... 
+    self.emit = (args...) ->
+      events.emit self, args...
+    emit = self.emit
+
     cachedImages = ""
     for image, index in images
       cachedImages += """
@@ -39,7 +45,8 @@ $ ->
         degree = degree - 360
       imageIndex = parseInt(images.length * degree/360)
       el.find("img").attr "src", images[imageIndex + 0]
-      onchange false, imageIndex
+      
+      emit "change", imageIndex
 
 
     el.bind "mousedown", (e) ->
@@ -73,6 +80,6 @@ $ ->
     width: 183
     height: 192
   $(document.body).append smiley.el
-  smiley.onchange (err, value) ->
-    $("#value").val value
+  smiley.on "change", (value) ->
+    $("#value").text value
 
