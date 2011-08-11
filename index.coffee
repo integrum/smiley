@@ -1,10 +1,17 @@
 $ ->
   smileyer = (options) ->
-    {images, width, height} = options
+    {images, width, height, onchange} = options
+    onchange ||= ->
     self = {}
+    cachedImages = ""
+    for image, index in images
+      cachedImages += """
+        <img style="display: none; width:#{width}px; height#{height}px" src="#{images[index]}" />
+      """
     el = $ """
       <div class="smiley">
         <img style="width:#{width}px; height#{height}px" src="#{images[0]}" />
+          #{cachedImages}
       </div>
     """
     self.el = el
@@ -30,12 +37,15 @@ $ ->
         degree = 360 - degree
       if degree > 360
         degree = degree - 360
-      console.log degree
+      imageIndex = parseInt(images.length * degree/360)
+      el.find("img").attr "src", images[imageIndex + 0]
+      onchange false, imageIndex
+
 
     el.bind "mousedown", (e) ->
       e.preventDefault()
-      calcDegree e.pageX, e.pageY
       moving = true
+      calcDegree e.pageX, e.pageY
 
     el.bind "mousemove", (e) ->
       calcDegree e.pageX, e.pageY
@@ -57,7 +67,12 @@ $ ->
       'smiley/smiley-06.png'
       'smiley/smiley-07.png'
       'smiley/smiley-08.png'
+      'smiley/smiley-09.png'
+      'smiley/smiley-10.png'
     ]
     width: 183
     height: 192
   $(document.body).append smiley.el
+  smiley.onchange (err, value) ->
+    $("#value").val value
+
