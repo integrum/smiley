@@ -100,6 +100,8 @@ Smiley = window.Smiley = (options={}) ->
 
   renderMarkerImage = () ->
     if currentMarkerImage
+      ctx.clearRect(-width/2,-height/2,width,height)
+      ctx.save()
       radians = degree * 0.0174532925
       ctx.rotate(radians)
       ctx.drawImage currentMarkerImage, -markerWidth/2, - (smileHeight / 2) - markerHeight
