@@ -1,4 +1,5 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+ <!--[if IE]><script src="excanvas.js"></script><![endif]-->
 <script src="underscore.js"></script>
 <script src="events.js"></script>
 <script src="smiley.js"></script>
@@ -31,6 +32,13 @@
   <img src="images/Smiley-Tab-Big_0010_9.png" />
   <img src="images/Smiley-Tab-Big_0011_10.png" />
 </div>
+
+
+    <canvas id="canvas" 
+      width="#{width}"
+      height="#{height}"
+      style="position:absolute;top:0;left:0;">
+    </canvas>
 
 
 <div id="value">0</div>

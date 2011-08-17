@@ -1,5 +1,8 @@
 Smiley = window.Smiley = (options={}) ->
   {images, width, height, mood, imagesDiv, markerDiv, date} = options
+  degree = 0
+  markerHeight = 47
+  markerWidth = 47
   width    ||= 183 + (47*2)
   height   ||= 192 + (47*2)
   markerRatioWidth = 47/183
@@ -18,6 +21,7 @@ Smiley = window.Smiley = (options={}) ->
   mood     ||= 0
   markerIndex = 0
   markerImages = []
+  markerImageEls = []
   date     ||= new Date()
   year  = date.getUTCFullYear()
   month = "0#{date.getUTCMonth() + 1}".slice(-2)
@@ -26,8 +30,6 @@ Smiley = window.Smiley = (options={}) ->
 
   imagesDiv ||= '#smiley-images'
   markerDiv ||= "#marker-images"
-
-
 
   self = {}
 
@@ -49,10 +51,59 @@ Smiley = window.Smiley = (options={}) ->
       <img style="position: absolute; left: #{smileOffsetLeft}px; top:#{smileOffsetTop}px; width:#{smileWidth}px; height#{smileHeight}px" src="#{images[0]}" />
     """
 
+  false and canvas = $ """
+    <canvas 
+      width="#{width}"
+      height="#{height}"
+      style="position:absolute;top:0;left:0;">
+    </canvas>
+  """
+  canvas = $("#canvas")
+  canvas.attr "width", width
+  canvas.attr "height", height
+  
+
+  canvasEl = canvas[0]
+  if not canvasEl.getContext  
+    G_vmlCanvasManager.initElement(canvasEl)
+
+  ctx = canvasEl.getContext '2d'
+  ctx.translate width/2, height/2
+  ctx.save()
+
+  ctx.fillStyle = "rgb(200,0,0)"
+  ctx.fillRect 0, 0, 100, 100
+
+    
+  loadedMarkers = 0
+  markerLength = 0
+  currentMarkerImage = null
+
+  initializeMarkers = () ->
+    currentMarkerImage = markerImageEls[0]
+    renderMarkerImage()
+
   self.useMarkerImagesFromDiv = (div) ->
     markerImages = []
+    markerLength = $(div).find('img').length
     $(div).find('img').each () ->
-      markerImages.push $(this).attr('src')
+      src = $(this).attr('src')
+      markerImages.push src 
+      #markerImageEls.push this
+      markerEl = new Image()
+      markerImageEls.push markerEl
+      markerEl.onload = () ->
+        loadedMarkers += 1
+        if loadedMarkers == markerLength
+          initializeMarkers()
+      markerEl.src = src
+
+  renderMarkerImage = () ->
+    if currentMarkerImage
+      radians = degree * 0.0174532925
+      ctx.rotate(radians)
+      ctx.drawImage currentMarkerImage, -markerWidth/2, - (smileHeight / 2) - markerHeight
+      ctx.restore()
 
 
   if imagesDiv
@@ -60,14 +111,10 @@ Smiley = window.Smiley = (options={}) ->
 
   if markerDiv
     self.useMarkerImagesFromDiv markerDiv
-  canvas = $ '<canvas style="position:absolute;top:0;left:0;" width="#{width}" height="#{height}"></canvas>'
-  canvasEl = canvas[0]
-  ctx = canvasEl.getContext '2d'
 
-  ctx.translate width/2, height/2
 
-  ctx.fillStyle = "rgb(200,0,0)"
-  ctx.fillRect 10,10, 55, 50
+  #ctx.drawImage markerImageEls[0], 0, 0, markerHeight, markerWidth
+  
 
   el.append canvas
 
@@ -119,6 +166,7 @@ Smiley = window.Smiley = (options={}) ->
   self.setMood = setMood
 
   render = () ->
+    renderMarkerImage()
     el.find("img").attr "src", images[mood + 0]
 
   self.render = render
