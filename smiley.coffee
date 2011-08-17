@@ -1,9 +1,20 @@
 Smiley = window.Smiley = (options={}) ->
   {images, width, height, mood, imagesDiv, markerDiv, date} = options
+  width    ||= 183 + (47*2)
+  height   ||= 192 + (47*2)
+  markerRatioWidth = 47/183
+  markerRatioHeight = 47/192
+
+  smileRatioWidth = 183  / (47 * 2 + 183)
+  smileRatioHeight = 192  / (47 * 2 + 192)
+
+  smileWidth = width * smileRatioWidth
+  smileHeight = height * smileRatioHeight
+
+  smileOffsetLeft = (width - smileWidth) / 2
+  smileOffsetTop = (height - smileHeight) / 2
 
   images   ||= []
-  width    ||= 183
-  height   ||= 192
   mood     ||= 0
   markerIndex = 0
   markerImages = []
@@ -16,10 +27,12 @@ Smiley = window.Smiley = (options={}) ->
   imagesDiv ||= '#smiley-images'
   markerDiv ||= "#marker-images"
 
+
+
   self = {}
 
   el = $ """
-    <div class="smiley" id="smiley-#{formattedDate}">
+    <div class="smiley" id="smiley-#{formattedDate}" style="position: relative; width: #{width}px; height: #{height}px; border: 1px solid black">
     </div>
   """
 
@@ -31,8 +44,9 @@ Smiley = window.Smiley = (options={}) ->
     $(div).find('img').each () ->
       images.push $(this).attr('src')
 
+    
     el.append $ """
-      <img style="width:#{width}px; height#{height}px" src="#{images[0]}" />
+      <img style="position: absolute; left: #{smileOffsetLeft}px; top:#{smileOffsetTop}px; width:#{smileWidth}px; height#{smileHeight}px" src="#{images[0]}" />
     """
 
   self.useMarkerImagesFromDiv = (div) ->
@@ -49,6 +63,9 @@ Smiley = window.Smiley = (options={}) ->
   canvas = $ '<canvas style="position:absolute;top:0;left:0;" width="#{width}" height="#{height}"></canvas>'
   canvasEl = canvas[0]
   ctx = canvasEl.getContext '2d'
+
+  ctx.translate width/2, height/2
+
   ctx.fillStyle = "rgb(200,0,0)"
   ctx.fillRect 10,10, 55, 50
 

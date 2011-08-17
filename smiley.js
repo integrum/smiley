@@ -2,14 +2,22 @@
   var Smiley;
   var __slice = Array.prototype.slice;
   Smiley = window.Smiley = function(options) {
-    var calcDegree, canvas, canvasEl, ctx, date, day, el, emit, formattedDate, height, images, imagesDiv, markerDiv, markerImages, markerIndex, month, mood, moving, render, self, setMood, width, year;
+    var calcDegree, canvas, canvasEl, ctx, date, day, el, emit, formattedDate, height, images, imagesDiv, markerDiv, markerImages, markerIndex, markerRatioHeight, markerRatioWidth, month, mood, moving, render, self, setMood, smileHeight, smileOffsetLeft, smileOffsetTop, smileRatioHeight, smileRatioWidth, smileWidth, width, year;
     if (options == null) {
       options = {};
     }
     images = options.images, width = options.width, height = options.height, mood = options.mood, imagesDiv = options.imagesDiv, markerDiv = options.markerDiv, date = options.date;
+    width || (width = 183 + (47 * 2));
+    height || (height = 192 + (47 * 2));
+    markerRatioWidth = 47 / 183;
+    markerRatioHeight = 47 / 192;
+    smileRatioWidth = 183 / (47 * 2 + 183);
+    smileRatioHeight = 192 / (47 * 2 + 192);
+    smileWidth = width * smileRatioWidth;
+    smileHeight = height * smileRatioHeight;
+    smileOffsetLeft = (width - smileWidth) / 2;
+    smileOffsetTop = (height - smileHeight) / 2;
     images || (images = []);
-    width || (width = 183);
-    height || (height = 192);
     mood || (mood = 0);
     markerIndex = 0;
     markerImages = [];
@@ -21,7 +29,7 @@
     imagesDiv || (imagesDiv = '#smiley-images');
     markerDiv || (markerDiv = "#marker-images");
     self = {};
-    el = $("<div class=\"smiley\" id=\"smiley-" + formattedDate + "\">\n</div>");
+    el = $("<div class=\"smiley\" id=\"smiley-" + formattedDate + "\" style=\"position: relative; width: " + width + "px; height: " + height + "px; border: 1px solid black\">\n</div>");
     self.el = el;
     moving = false;
     self.useImagesFromDiv = function(div) {
@@ -29,7 +37,7 @@
       $(div).find('img').each(function() {
         return images.push($(this).attr('src'));
       });
-      return el.append($("<img style=\"width:" + width + "px; height" + height + "px\" src=\"" + images[0] + "\" />"));
+      return el.append($("<img style=\"position: absolute; left: " + smileOffsetLeft + "px; top:" + smileOffsetTop + "px; width:" + smileWidth + "px; height" + smileHeight + "px\" src=\"" + images[0] + "\" />"));
     };
     self.useMarkerImagesFromDiv = function(div) {
       markerImages = [];
@@ -46,6 +54,7 @@
     canvas = $('<canvas style="position:absolute;top:0;left:0;" width="#{width}" height="#{height}"></canvas>');
     canvasEl = canvas[0];
     ctx = canvasEl.getContext('2d');
+    ctx.translate(width / 2, height / 2);
     ctx.fillStyle = "rgb(200,0,0)";
     ctx.fillRect(10, 10, 55, 50);
     el.append(canvas);
