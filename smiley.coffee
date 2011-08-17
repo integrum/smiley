@@ -17,8 +17,11 @@ Smiley = window.Smiley = (options={}) ->
   smileRatioHeight = smileRawHeight  / (markerRawHeight * 2 + smileRawHeight)
   
 
-  width    ||= 100 #183 + (47*2)
-  height   ||= 100 #192 + (47*2)
+  width    ||= 183 + (47*2)
+  height   ||= 192 + (47*2)
+  padding = width * .05
+  width -= padding
+  height -= padding
 
   smileWidth = width * smileRatioWidth
   smileHeight = height * smileRatioHeight
@@ -29,6 +32,8 @@ Smiley = window.Smiley = (options={}) ->
   markerScaleWidth = markerWidth / markerRawWidth
   markerScaleHeight = markerHeight / markerRawHeight
 
+  width  += padding
+  height += padding
 
   smileOffsetLeft = (width - smileWidth) / 2
   smileOffsetTop = (height - smileHeight) / 2
@@ -199,7 +204,9 @@ Smiley = window.Smiley = (options={}) ->
     calcDegree e.pageX, e.pageY
 
   el.bind "mousemove", (e) ->
+    e.preventDefault()
     calcDegree e.pageX, e.pageY
+
 
   el.bind "mouseup", (e) ->
     moving = false

@@ -16,14 +16,19 @@ Smiley = window.Smiley = function(options) {
   markerRatioHeight = markerRawHeight / smileRawHeight;
   smileRatioWidth = smileRawWidth / (markerRawWidth * 2 + smileRawWidth);
   smileRatioHeight = smileRawHeight / (markerRawHeight * 2 + smileRawHeight);
-  width || (width = 100);
-  height || (height = 100);
+  width || (width = 183 + (47 * 2));
+  height || (height = 192 + (47 * 2));
+  padding = width * .05;
+  width -= padding;
+  height -= padding;
   smileWidth = width * smileRatioWidth;
   smileHeight = height * smileRatioHeight;
   markerWidth = smileWidth * markerRatioWidth;
   markerHeight = smileHeight * markerRatioWidth;
   markerScaleWidth = markerWidth / markerRawWidth;
   markerScaleHeight = markerHeight / markerRawHeight;
+  width += padding;
+  height += padding;
   smileOffsetLeft = (width - smileWidth) / 2;
   smileOffsetTop = (height - smileHeight) / 2;
   images || (images = []);
@@ -170,6 +175,7 @@ Smiley = window.Smiley = function(options) {
     return calcDegree(e.pageX, e.pageY);
   });
   el.bind("mousemove", function(e) {
+    e.preventDefault();
     return calcDegree(e.pageX, e.pageY);
   });
   el.bind("mouseup", function(e) {
