@@ -1,5 +1,8 @@
 $(function() {
   var smiley;
   smiley = Smiley();
-  return $(document.body).append(smiley.el);
+  $(document.body).append(smiley.el);
+  return smiley.on("change", function(value) {
+    return $("#value").text(value);
+  });
 });

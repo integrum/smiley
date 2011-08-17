@@ -1,11 +1,11 @@
 var Smiley;
 var __slice = Array.prototype.slice;
 Smiley = window.Smiley = function(options) {
-  var calcDegree, canvas, canvasEl, ctx, currentMarkerImage, date, day, degree, el, emit, formattedDate, height, images, imagesDiv, initializeMarkers, loadedMarkers, markerDiv, markerHeight, markerImageEls, markerImages, markerIndex, markerLength, markerRatioHeight, markerRatioWidth, markerRawHeight, markerRawWidth, markerScaleHeight, markerScaleWidth, markerWidth, month, mood, moving, padding, render, renderMarkerImage, self, setMood, smileHeight, smileOffsetLeft, smileOffsetTop, smileRatioHeight, smileRatioWidth, smileRawHeight, smileRawWidth, smileWidth, width, year;
+  var calcDegree, canvas, canvasEl, ctx, currentMarkerImage, date, day, degree, el, emit, formattedDate, height, images, imagesDiv, initializeMarkers, loadedMarkers, markerDiv, markerHeight, markerImageEls, markerImages, markerIndex, markerLength, markerRatioHeight, markerRatioWidth, markerRawHeight, markerRawWidth, markerScaleHeight, markerScaleWidth, markerWidth, month, mood, moving, nullMarkerEl, nullMarkerId, padding, render, renderMarkerImage, renderedMarkerOnce, self, setMood, smileHeight, smileOffsetLeft, smileOffsetTop, smileRatioHeight, smileRatioWidth, smileRawHeight, smileRawWidth, smileWidth, useNullMarkerImage, width, year;
   if (options == null) {
     options = {};
   }
-  images = options.images, width = options.width, height = options.height, mood = options.mood, imagesDiv = options.imagesDiv, markerDiv = options.markerDiv, date = options.date, markerRawHeight = options.markerRawHeight, markerRawWidth = options.markerRawWidth, smileRawHeight = options.smileRawHeight, smileRawWidth = options.smileRawWidth;
+  images = options.images, width = options.width, height = options.height, mood = options.mood, imagesDiv = options.imagesDiv, markerDiv = options.markerDiv, date = options.date, markerRawHeight = options.markerRawHeight, markerRawWidth = options.markerRawWidth, smileRawHeight = options.smileRawHeight, smileRawWidth = options.smileRawWidth, padding = options.padding, nullMarkerId = options.nullMarkerId;
   degree = 0;
   padding = 20;
   markerRawWidth || (markerRawWidth = 47);
@@ -36,6 +36,7 @@ Smiley = window.Smiley = function(options) {
   markerIndex = 0;
   markerImages = [];
   markerImageEls = [];
+  nullMarkerEl = null;
   date || (date = new Date());
   year = date.getUTCFullYear();
   month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
@@ -43,6 +44,7 @@ Smiley = window.Smiley = function(options) {
   formattedDate = "" + year + "-" + month + "-" + day;
   imagesDiv || (imagesDiv = '#smiley-images');
   markerDiv || (markerDiv = "#marker-images");
+  nullMarkerId || (nullMarkerId = "#marker-image-null");
   self = {};
   el = $("<div class=\"smiley\" id=\"smiley-" + formattedDate + "\" style=\"position: relative; width: " + width + "px; height: " + height + "px; border: 1px solid black\">\n</div>");
   self.el = el;
@@ -54,8 +56,9 @@ Smiley = window.Smiley = function(options) {
     });
     return el.append($("<img style=\"position: absolute; left: " + smileOffsetLeft + "px; top:" + smileOffsetTop + "px; width:" + smileWidth + "px; height" + smileHeight + "px\" src=\"" + images[0] + "\" />"));
   };
-  false && (canvas = $("<canvas \n  width=\"" + width + "\"\n  height=\"" + height + "\"\n  style=\"position:absolute;top:0;left:0;\">\n</canvas>"));
-  canvas = $("#canvas");
+  canvasEl = document.createElement('canvas');
+  canvas = $(canvasEl);
+  $(document.body).append(canvas);
   canvas.attr("width", width);
   canvas.attr("height", height);
   canvasEl = canvas[0];
@@ -65,18 +68,15 @@ Smiley = window.Smiley = function(options) {
   ctx = canvasEl.getContext('2d');
   ctx.translate(width / 2, height / 2);
   ctx.save();
-  ctx.fillStyle = "rgb(200,0,0)";
-  ctx.fillRect(0, 0, 100, 100);
   loadedMarkers = 0;
   markerLength = 0;
   currentMarkerImage = null;
   initializeMarkers = function() {
-    currentMarkerImage = markerImageEls[0];
     return renderMarkerImage();
   };
   self.useMarkerImagesFromDiv = function(div) {
     markerImages = [];
-    markerLength = $(div).find('img').length;
+    markerLength = $(div).find('img').length + 1;
     return $(div).find('img').each(function() {
       var markerEl, src;
       src = $(this).attr('src');
@@ -92,8 +92,27 @@ Smiley = window.Smiley = function(options) {
       return markerEl.src = src;
     });
   };
+  useNullMarkerImage = self.useNullMarkerImage = function(nullMarkerId) {
+    var nullMarkerSrc;
+    nullMarkerSrc = $(nullMarkerId).attr('src');
+    nullMarkerEl = new Image();
+    nullMarkerEl.onload = function() {
+      loadedMarkers += 1;
+      if (loadedMarkers === markerLength) {
+        return initializeMarkers();
+      }
+    };
+    return nullMarkerEl.src = nullMarkerSrc;
+  };
+  renderedMarkerOnce = false;
   renderMarkerImage = function() {
     var markerX, markerY, radians;
+    if (!renderedMarkerOnce && currentMarkerImage) {
+      currentMarkerImage = nullMarkerEl;
+      renderedMarkerOnce = true;
+    } else {
+      currentMarkerImage = markerImageEls[mood];
+    }
     if (currentMarkerImage) {
       ctx.clearRect(-width / 2, -height / 2, width, height);
       ctx.save();
@@ -111,6 +130,9 @@ Smiley = window.Smiley = function(options) {
   }
   if (markerDiv) {
     self.useMarkerImagesFromDiv(markerDiv);
+  }
+  if (nullMarkerId) {
+    self.useNullMarkerImage(nullMarkerId);
   }
   el.append(canvas);
   self.on = function() {

@@ -1,6 +1,7 @@
 Smiley = window.Smiley = (options={}) ->
   {images, width, height, mood, imagesDiv, markerDiv, date
-  markerRawHeight, markerRawWidth, smileRawHeight, smileRawWidth} = options
+  markerRawHeight, markerRawWidth, smileRawHeight, smileRawWidth,
+  padding, nullMarkerId} = options
 
   degree = 0
   padding = 20
@@ -43,6 +44,7 @@ Smiley = window.Smiley = (options={}) ->
   markerIndex = 0
   markerImages = []
   markerImageEls = []
+  nullMarkerEl = null
   date     ||= new Date()
   year  = date.getUTCFullYear()
   month = "0#{date.getUTCMonth() + 1}".slice(-2)
@@ -51,6 +53,7 @@ Smiley = window.Smiley = (options={}) ->
 
   imagesDiv ||= '#smiley-images'
   markerDiv ||= "#marker-images"
+  nullMarkerId ||= "#marker-image-null"
 
   self = {}
 
@@ -72,18 +75,15 @@ Smiley = window.Smiley = (options={}) ->
       <img style="position: absolute; left: #{smileOffsetLeft}px; top:#{smileOffsetTop}px; width:#{smileWidth}px; height#{smileHeight}px" src="#{images[0]}" />
     """
 
-  false and canvas = $ """
-    <canvas 
-      width="#{width}"
-      height="#{height}"
-      style="position:absolute;top:0;left:0;">
-    </canvas>
-  """
-  canvas = $("#canvas")
+  canvasEl = document.createElement('canvas')
+  canvas = $ canvasEl
+
+  $(document.body).append(canvas)
+
   canvas.attr "width", width
   canvas.attr "height", height
   
-
+  
   canvasEl = canvas[0]
   if not canvasEl.getContext  
     G_vmlCanvasManager.initElement(canvasEl)
@@ -92,8 +92,8 @@ Smiley = window.Smiley = (options={}) ->
   ctx.translate width/2, height/2
   ctx.save()
 
-  ctx.fillStyle = "rgb(200,0,0)"
-  ctx.fillRect 0, 0, 100, 100
+  #ctx.fillStyle = "rgb(200,0,0)"
+  #ctx.fillRect 0, 0, 100, 100
 
     
   loadedMarkers = 0
@@ -101,12 +101,11 @@ Smiley = window.Smiley = (options={}) ->
   currentMarkerImage = null
 
   initializeMarkers = () ->
-    currentMarkerImage = markerImageEls[0]
     renderMarkerImage()
 
   self.useMarkerImagesFromDiv = (div) ->
     markerImages = []
-    markerLength = $(div).find('img').length
+    markerLength = $(div).find('img').length + 1 #plus one for the null one
     $(div).find('img').each () ->
       src = $(this).attr('src')
       markerImages.push src 
@@ -119,7 +118,23 @@ Smiley = window.Smiley = (options={}) ->
           initializeMarkers()
       markerEl.src = src
 
+  useNullMarkerImage = self.useNullMarkerImage = (nullMarkerId) ->
+    nullMarkerSrc = $(nullMarkerId).attr('src')
+    nullMarkerEl = new Image()
+    nullMarkerEl.onload = () ->
+      loadedMarkers += 1
+      if loadedMarkers == markerLength
+        initializeMarkers()
+    nullMarkerEl.src = nullMarkerSrc
+
+
+  renderedMarkerOnce = false
   renderMarkerImage = () ->
+    if not(renderedMarkerOnce) and currentMarkerImage
+      currentMarkerImage = nullMarkerEl
+      renderedMarkerOnce = true
+    else
+      currentMarkerImage = markerImageEls[mood]
     if currentMarkerImage
       ctx.clearRect(-width/2,-height/2,width,height)
       ctx.save()
@@ -139,6 +154,8 @@ Smiley = window.Smiley = (options={}) ->
   if markerDiv
     self.useMarkerImagesFromDiv markerDiv
 
+  if nullMarkerId
+    self.useNullMarkerImage nullMarkerId
 
   #ctx.drawImage markerImageEls[0], 0, 0, markerHeight, markerWidth
   
