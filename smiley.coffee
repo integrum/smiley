@@ -1,18 +1,34 @@
 Smiley = window.Smiley = (options={}) ->
-  {images, width, height, mood, imagesDiv, markerDiv, date} = options
-  degree = 0
-  markerHeight = 47
-  markerWidth = 47
-  width    ||= 183 + (47*2)
-  height   ||= 192 + (47*2)
-  markerRatioWidth = 47/183
-  markerRatioHeight = 47/192
+  {images, width, height, mood, imagesDiv, markerDiv, date
+  markerRawHeight, markerRawWidth, smileRawHeight, smileRawWidth} = options
 
-  smileRatioWidth = 183  / (47 * 2 + 183)
-  smileRatioHeight = 192  / (47 * 2 + 192)
+  degree = 0
+  padding = 20
+  markerRawWidth ||= 47
+  markerRawHeight ||= 47
+
+  smileRawWidth ||= 183
+  smileRawHeight ||= 192
+
+  markerRatioWidth = markerRawWidth/smileRawWidth
+  markerRatioHeight = markerRawHeight/smileRawHeight
+
+  smileRatioWidth = smileRawWidth  / (markerRawWidth * 2 + smileRawWidth)
+  smileRatioHeight = smileRawHeight  / (markerRawHeight * 2 + smileRawHeight)
+  
+
+  width    ||= 100 #183 + (47*2)
+  height   ||= 100 #192 + (47*2)
 
   smileWidth = width * smileRatioWidth
   smileHeight = height * smileRatioHeight
+  
+  markerWidth = smileWidth * markerRatioWidth
+  markerHeight = smileHeight * markerRatioWidth
+
+  markerScaleWidth = markerWidth / markerRawWidth
+  markerScaleHeight = markerHeight / markerRawHeight
+
 
   smileOffsetLeft = (width - smileWidth) / 2
   smileOffsetTop = (height - smileHeight) / 2
@@ -103,8 +119,12 @@ Smiley = window.Smiley = (options={}) ->
       ctx.clearRect(-width/2,-height/2,width,height)
       ctx.save()
       radians = degree * 0.0174532925
+      ctx.scale(markerScaleWidth, markerScaleHeight)
       ctx.rotate(radians)
-      ctx.drawImage currentMarkerImage, -markerWidth/2, - (smileHeight / 2) - markerHeight
+      markerX =  (-markerWidth/2) / markerScaleWidth
+      markerY =  (- (smileHeight / 2) - markerHeight) / markerScaleHeight
+
+      ctx.drawImage currentMarkerImage, markerX, markerY
       ctx.restore()
 
 

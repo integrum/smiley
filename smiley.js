@@ -1,22 +1,29 @@
 var Smiley;
 var __slice = Array.prototype.slice;
 Smiley = window.Smiley = function(options) {
-  var calcDegree, canvas, canvasEl, ctx, currentMarkerImage, date, day, degree, el, emit, formattedDate, height, images, imagesDiv, initializeMarkers, loadedMarkers, markerDiv, markerHeight, markerImageEls, markerImages, markerIndex, markerLength, markerRatioHeight, markerRatioWidth, markerWidth, month, mood, moving, render, renderMarkerImage, self, setMood, smileHeight, smileOffsetLeft, smileOffsetTop, smileRatioHeight, smileRatioWidth, smileWidth, width, year;
+  var calcDegree, canvas, canvasEl, ctx, currentMarkerImage, date, day, degree, el, emit, formattedDate, height, images, imagesDiv, initializeMarkers, loadedMarkers, markerDiv, markerHeight, markerImageEls, markerImages, markerIndex, markerLength, markerRatioHeight, markerRatioWidth, markerRawHeight, markerRawWidth, markerScaleHeight, markerScaleWidth, markerWidth, month, mood, moving, padding, render, renderMarkerImage, self, setMood, smileHeight, smileOffsetLeft, smileOffsetTop, smileRatioHeight, smileRatioWidth, smileRawHeight, smileRawWidth, smileWidth, width, year;
   if (options == null) {
     options = {};
   }
-  images = options.images, width = options.width, height = options.height, mood = options.mood, imagesDiv = options.imagesDiv, markerDiv = options.markerDiv, date = options.date;
+  images = options.images, width = options.width, height = options.height, mood = options.mood, imagesDiv = options.imagesDiv, markerDiv = options.markerDiv, date = options.date, markerRawHeight = options.markerRawHeight, markerRawWidth = options.markerRawWidth, smileRawHeight = options.smileRawHeight, smileRawWidth = options.smileRawWidth;
   degree = 0;
-  markerHeight = 47;
-  markerWidth = 47;
-  width || (width = 183 + (47 * 2));
-  height || (height = 192 + (47 * 2));
-  markerRatioWidth = 47 / 183;
-  markerRatioHeight = 47 / 192;
-  smileRatioWidth = 183 / (47 * 2 + 183);
-  smileRatioHeight = 192 / (47 * 2 + 192);
+  padding = 20;
+  markerRawWidth || (markerRawWidth = 47);
+  markerRawHeight || (markerRawHeight = 47);
+  smileRawWidth || (smileRawWidth = 183);
+  smileRawHeight || (smileRawHeight = 192);
+  markerRatioWidth = markerRawWidth / smileRawWidth;
+  markerRatioHeight = markerRawHeight / smileRawHeight;
+  smileRatioWidth = smileRawWidth / (markerRawWidth * 2 + smileRawWidth);
+  smileRatioHeight = smileRawHeight / (markerRawHeight * 2 + smileRawHeight);
+  width || (width = 100);
+  height || (height = 100);
   smileWidth = width * smileRatioWidth;
   smileHeight = height * smileRatioHeight;
+  markerWidth = smileWidth * markerRatioWidth;
+  markerHeight = smileHeight * markerRatioWidth;
+  markerScaleWidth = markerWidth / markerRawWidth;
+  markerScaleHeight = markerHeight / markerRawHeight;
   smileOffsetLeft = (width - smileWidth) / 2;
   smileOffsetTop = (height - smileHeight) / 2;
   images || (images = []);
@@ -81,13 +88,16 @@ Smiley = window.Smiley = function(options) {
     });
   };
   renderMarkerImage = function() {
-    var radians;
+    var markerX, markerY, radians;
     if (currentMarkerImage) {
       ctx.clearRect(-width / 2, -height / 2, width, height);
       ctx.save();
       radians = degree * 0.0174532925;
+      ctx.scale(markerScaleWidth, markerScaleHeight);
       ctx.rotate(radians);
-      ctx.drawImage(currentMarkerImage, -markerWidth / 2, -(smileHeight / 2) - markerHeight);
+      markerX = (-markerWidth / 2) / markerScaleWidth;
+      markerY = (-(smileHeight / 2) - markerHeight) / markerScaleHeight;
+      ctx.drawImage(currentMarkerImage, markerX, markerY);
       return ctx.restore();
     }
   };
