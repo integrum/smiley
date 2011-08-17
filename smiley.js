@@ -45,6 +45,7 @@ Smiley = window.Smiley = function(options) {
   imagesDiv || (imagesDiv = '#smiley-images');
   markerDiv || (markerDiv = "#marker-images");
   nullMarkerId || (nullMarkerId = "#marker-image-null");
+  renderedMarkerOnce = false;
   self = {};
   el = $("<div class=\"smiley\" id=\"smiley-" + formattedDate + "\" style=\"position: relative; width: " + width + "px; height: " + height + "px; border: 1px solid black\">\n</div>");
   self.el = el;
@@ -72,7 +73,19 @@ Smiley = window.Smiley = function(options) {
   markerLength = 0;
   currentMarkerImage = null;
   initializeMarkers = function() {
-    return renderMarkerImage();
+    var _oldMood;
+    _oldMood = mood;
+    return _.eachSeries(markerImages, function(markerimage, index, callback) {
+      return setTimeout((function() {
+        mood = index;
+        renderMarkerImage();
+        return callback();
+      }), 0);
+    }, function() {
+      mood = _oldMood;
+      renderedMarkerOnce = false;
+      return renderMarkerImage();
+    });
   };
   self.useMarkerImagesFromDiv = function(div) {
     markerImages = [];
@@ -104,7 +117,6 @@ Smiley = window.Smiley = function(options) {
     };
     return nullMarkerEl.src = nullMarkerSrc;
   };
-  renderedMarkerOnce = false;
   renderMarkerImage = function() {
     var markerX, markerY, radians;
     if (!renderedMarkerOnce && currentMarkerImage) {

@@ -200,6 +200,7 @@
     exports.reduce = function (obj, iterator, memo, callback) {
         return (callback ? reduceSeries: reduceSync)(obj, iterator, memo, callback);
     };
+    exports.eachSeries = eachSeries
 
     exports.parallel = function (fns, callback) {
         var results = new fns.constructor();

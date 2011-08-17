@@ -54,6 +54,7 @@ Smiley = window.Smiley = (options={}) ->
   imagesDiv ||= '#smiley-images'
   markerDiv ||= "#marker-images"
   nullMarkerId ||= "#marker-image-null"
+  renderedMarkerOnce = false
 
   self = {}
 
@@ -101,7 +102,18 @@ Smiley = window.Smiley = (options={}) ->
   currentMarkerImage = null
 
   initializeMarkers = () ->
-    renderMarkerImage()
+    _oldMood = mood
+    #caching the images for IE
+    _.eachSeries markerImages, (markerimage, index, callback) ->
+      setTimeout (->
+        mood = index
+        renderMarkerImage()
+        callback()
+      ), 0
+    , () ->
+      mood = _oldMood
+      renderedMarkerOnce = false
+      renderMarkerImage()
 
   self.useMarkerImagesFromDiv = (div) ->
     markerImages = []
@@ -127,8 +139,6 @@ Smiley = window.Smiley = (options={}) ->
         initializeMarkers()
     nullMarkerEl.src = nullMarkerSrc
 
-
-  renderedMarkerOnce = false
   renderMarkerImage = () ->
     if not(renderedMarkerOnce) and currentMarkerImage
       currentMarkerImage = nullMarkerEl
