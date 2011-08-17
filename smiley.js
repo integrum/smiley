@@ -172,11 +172,11 @@ Smiley = window.Smiley = function(options) {
     y = pageY - el.offset().top + (height / 2);
     y = height - y;
     degree = Math.atan(y / x) / (Math.PI / 180);
-    if (x < 0 && y > 0) {
+    if (x <= 0 && y > 0) {
       degree = degree + 180;
-    } else if (x < 0 && y < 0) {
+    } else if (x <= 0 && y <= 0) {
       degree = degree + 180;
-    } else if (x > 0 && y < 0) {
+    } else if (x > 0 && y <= 0) {
       degree = degree + 360;
     }
     degree = (360 - degree) + 90;

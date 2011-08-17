@@ -192,11 +192,11 @@ Smiley = window.Smiley = (options={}) ->
 
     degree = Math.atan(y/x) / (Math.PI / 180)
 
-    if x < 0 and y > 0
+    if x <= 0 and y > 0
       degree = degree + 180
-    else if x < 0 and y < 0
+    else if x <= 0 and y <= 0
       degree = degree + 180
-    else if x > 0 and y < 0
+    else if x > 0 and y <= 0
       degree = degree + 360
 
     #offset the degree for the smiley
